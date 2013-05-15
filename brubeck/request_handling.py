@@ -834,7 +834,7 @@ class Brubeck(object):
             url_prefix = prefix
 
         # TODO inspect url pattern for holes
-        pattern = "/((?P<ids>[-\w\d%s]+)(/)*|$)" % self.MULTIPLE_ITEM_SEP
+        pattern = "(/(?P<ids>[-\w\d%s]+)(/)*|/?$)" % self.MULTIPLE_ITEM_SEP
         api_url = ''.join([url_prefix, pattern])
 
         self.add_route_rule(api_url, APIClass)

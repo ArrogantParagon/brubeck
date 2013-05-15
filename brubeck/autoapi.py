@@ -3,6 +3,7 @@ from schematics.serialize import to_json, make_safe_json
 
 import ujson as json
 
+import re
 
 class AutoAPIBase(JSONMessageHandler):
     """AutoAPIBase generates a JSON REST API for you. *high five!*
@@ -14,6 +15,8 @@ class AutoAPIBase(JSONMessageHandler):
     queries = None
 
     _PAYLOAD_DATA = 'data'
+    _CONTENT_TYPE_REGEX = re.compile(
+        r"application/json(?:;\s+charset=(?P<charset>.*?)$)?")
 
     ###
     ### Input Handling
@@ -24,14 +27,18 @@ class AutoAPIBase(JSONMessageHandler):
         client.
         """
         ### Locate body data by content type
-        if self.message.content_type == 'application/json':
+
+        match = self._CONTENT_TYPE_REGEX.match(self.message.content_type)
+        if match:
             body = self.message.body
+            content_encoding = match.groupdict().get('charset', 'utf-8')
         else:
             body = self.get_argument('data')
+            content_encoding = 'utf-8'
 
         ### Load found JSON into Python structure
         if body:
-            body = json.loads(body)
+            body = json.loads(body, content_encoding)
 
         return body
 
